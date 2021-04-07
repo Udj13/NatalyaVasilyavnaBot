@@ -130,3 +130,10 @@ CREATE TABLE Transactions (
 Статус таймера:
 
 **systemctl status natalyavasilyavna.timer**
+
+Настройки таймера:
+```
+OnCalendar=*-*-* *:15:*
+OnCalendar=*-*-* *:45:*
+```
+означают что он запускается в 15 и 45 минут каждого часа (в итоге получается два раза в час с интервалом 30 минут).
