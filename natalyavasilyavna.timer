@@ -1,0 +1,11 @@
+[Unit]
+Description=New_Bank_Transaction_informer
+Requires=natalyavasilyavna.service
+
+[Timer]
+Unit=natalyavasilyavna.service
+OnCalendar=*-*-* *:15:*
+OnCalendar=*-*-* *:45:*
+
+[Install]
+WantedBy=timers.target

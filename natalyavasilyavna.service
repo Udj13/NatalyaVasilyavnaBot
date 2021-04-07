@@ -1,0 +1,10 @@
+[Unit]
+Description=New_Bank_Transaction_informer
+Wants=natalyavasilyavna.timer
+
+[Service]
+Type=oneshot
+ExecStart=/myenv/NatalyaVasilevna/bin/python /myenv/NatalyaVasilevna/main.py
+
+[Install]
+WantedBy=multi-user.target
