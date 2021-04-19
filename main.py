@@ -117,22 +117,25 @@ class Bank:
                 bot.send_message(conf.altrnative_chat_id, send_text)
 
 
-bot = telebot.TeleBot(conf.key_api)
+try:
+    bot = telebot.TeleBot(conf.key_api)
 
-bank = Bank()
-bank.login()
-time.sleep(2)
+    bank = Bank()
+    bank.login()
+    time.sleep(2)
 
-bank.show_ip_transactions()
-time.sleep(1)
-bank.read_all_transactions()
-bank.filter_new_ip_transactions()
-bank.send("ИП")
+    bank.show_ip_transactions()
+    time.sleep(2)
+    bank.read_all_transactions()
+    bank.filter_new_ip_transactions()
+    bank.send("ИП")
 
-bank.show_ooo_transactions()
-time.sleep(1)
-bank.read_all_transactions()
-bank.filter_new_ooo_transactions()
-bank.send("НТЦ")
+    time.sleep(2)
+    bank.show_ooo_transactions()
+    time.sleep(2)
+    bank.read_all_transactions()
+    bank.filter_new_ooo_transactions()
+    bank.send("НТЦ")
 
-bank.close()
+finally:
+    bank.close()

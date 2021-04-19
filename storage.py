@@ -1,4 +1,5 @@
 import sqlite3
+import logging
 
 from transaction_class import Transaction
 
@@ -23,6 +24,8 @@ class Storage:
     def __init__(self):
         self.db = sqlite3.connect('nv-bot.db')
         self.cur = self.db.cursor()
+        logging.basicConfig(level=logging.INFO, filename='nv-bot.log',
+                            format='%(asctime)s %(filename)s %(levelname)s:%(message)s')
 
     def close(self):
         self.db.commit()
@@ -44,12 +47,19 @@ class Storage:
     def check_and_storage_transaction(self, transaction: Transaction, table_name):
         result = False
 
-        self.cur.execute(f"SELECT * FROM {table_name} WHERE pp_num={transaction.pp_num} and pp_inn={transaction.pp_inn}")
+        try:
+            self.cur.execute(f"SELECT * FROM {table_name} WHERE pp_num={transaction.pp_num} and pp_inn={transaction.pp_inn}")
 
-        if self.cur.fetchone() is None:
-            self.cur.execute(
-                f"INSERT INTO {table_name} (pp_num, pp_name_of_client, pp_inn, pp_summ, pp_info) VALUES ('{transaction.pp_num}', '{transaction.pp_name_of_client}', '{transaction.pp_inn}', '{transaction.pp_summ}', '{transaction.pp_info}')"
-            )
-            result = True
+            if self.cur.fetchone() is None:
+                self.cur.execute(
+                    #f"INSERT INTO {table_name} (pp_num, pp_name_of_client, pp_inn, pp_summ, pp_info) VALUES ('{transaction.pp_num}',
+                    #'{transaction.pp_name_of_client}', '{transaction.pp_inn}', '{transaction.pp_summ}', '{transaction.pp_info}')"
+                    f"INSERT INTO {table_name} (pp_num, pp_inn) VALUES ('{transaction.pp_num}', '{transaction.pp_inn}')"
+                )
+                self.db.commit()
+                result = True
+
+        except Exception as err:
+            logging.error(f"Ошибка при попытке работы с базой: {str(err)}")
 
         return result
