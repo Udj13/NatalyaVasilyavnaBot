@@ -143,14 +143,14 @@ try:
     time.sleep(2)
     bank.read_all_transactions()
     bank.filter_new_ip_transactions()
-    bank.send("👩‍💼 ИП")
+    bank.send("Организация 1")
 
     time.sleep(2)
     bank.show_ooo_transactions()
     time.sleep(2)
     bank.read_all_transactions()
     bank.filter_new_ooo_transactions()
-    bank.send("НТЦ")
+    bank.send("организация 2")
 
 
 finally:
