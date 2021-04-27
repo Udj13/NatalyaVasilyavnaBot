@@ -13,11 +13,13 @@ from storage import Storage
 
 import telebot
 
-from xvfbwrapper import Xvfb
+# from xvfbwrapper import Xvfb
 
 # Downloads new version: https://sites.google.com/a/chromium.org/chromedriver/downloads
 USERNAME = conf.usr
 PASSWORD = conf.pwd
+
+debugMode = False
 
 
 class Bank:
@@ -26,8 +28,9 @@ class Bank:
     new_transactions = []
 
     def __init__(self):
-        self.vdisplay = Xvfb()
-        self.vdisplay.start()
+        if not debugMode:
+            self.vdisplay = Xvfb()
+            self.vdisplay.start()
 
         self.chrome_options = Options()
         self.chrome_options.add_argument("--no-sandbox")
@@ -37,12 +40,11 @@ class Bank:
         self.set_date_variables()
         self.storage = Storage()
 
-
-
     def close(self):
         self.storage.close()
         self.driver.close()
-        self.vdisplay.stop()
+        if not debugMode:
+            self.vdisplay.stop()
 
     def login(self):
         self.driver.get(conf.path_to_site)
@@ -69,12 +71,14 @@ class Bank:
 
     def show_ip_transactions(self):
         self.set_date_field()
+        time.sleep(1)
         self.driver.find_element_by_xpath('//*[@id="selectMain"]/option[2]').click()
         time.sleep(1)
         self.driver.find_element_by_xpath('//*[@id="FormBody"]/table/tbody/tr[2]/td[4]/button[1]').click()
 
     def show_ooo_transactions(self):
         self.set_date_field()
+        time.sleep(1)
         self.driver.find_element_by_xpath('//*[@id="selectMain"]/option[1]').click()
         time.sleep(1)
         self.driver.find_element_by_xpath('//*[@id="FormBody"]/table/tbody/tr[2]/td[4]/button[1]').click()
@@ -99,6 +103,11 @@ class Bank:
 
             self.new_transactions.append(new_transacton)
 
+    def read_and_send_total(self, text):
+        content = self.driver.find_elements_by_id('HT')
+        send_text = text + ": " + content[3].text
+        bot.send_message(conf.total_chat_id, send_text)
+
     def filter_new_ip_transactions(self):
         self.new_transactions = self.storage.check_new_ip_transactions(bank.new_transactions)
 
@@ -113,8 +122,14 @@ class Bank:
         for t in self.new_transactions:
             send_text = t.pp_name_of_client + " (" + t.pp_inn + " )" + "\n" + t.pp_summ + "\n" + t.pp_info + "\n" + "пп " + t.pp_num
             bot.send_message(conf.chat_id, send_text)
-            if t.pp_info.find(conf.filter_tag) != -1:
+            if t.pp_info.find(conf.filter_tag) != -1:   # раскидываем по чатикам
                 bot.send_message(conf.altrnative_chat_id, send_text)
+                bot.send_message(conf.chat_id, '💳')
+            if t.pp_info.find("бонент") != -1:          # абонентка
+                bot.send_message(conf.chat_id, '🛰')
+
+        if len(self.new_transactions) > 0:
+            bank.read_and_send_total(text)
 
 
 try:
@@ -128,7 +143,7 @@ try:
     time.sleep(2)
     bank.read_all_transactions()
     bank.filter_new_ip_transactions()
-    bank.send("ИП")
+    bank.send("👩‍💼 ИП")
 
     time.sleep(2)
     bank.show_ooo_transactions()
@@ -136,6 +151,7 @@ try:
     bank.read_all_transactions()
     bank.filter_new_ooo_transactions()
     bank.send("НТЦ")
+
 
 finally:
     bank.close()
