@@ -72,6 +72,7 @@ key_api = 'ключ бота'
 chat_id = 'основной чат'
 filter_tag = 'ключевое_слово_для_фильтра'
 altrnative_chat_id = 'альтеративный чат '
+total_chat_id = ''
 path_to_driver = '/home/chromedriver'
 path_to_site = 'сайт клиент-банка'
 ```
